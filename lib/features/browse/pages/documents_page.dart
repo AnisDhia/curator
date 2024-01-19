@@ -1,3 +1,5 @@
+import 'package:curator/core/common/search.widget.dart';
+import 'package:curator/core/utility/extensions/color_extensions.dart';
 import 'package:curator/data/apis/mysql_api.dart';
 import 'package:curator/data/models/document_model.dart';
 import 'package:curator/features/dashboard/widgets/search_field.dart';
@@ -16,151 +18,155 @@ class DocumentsPage extends ConsumerStatefulWidget {
 }
 
 class _DocumentsPageState extends ConsumerState<DocumentsPage> {
-  Key _formKey = GlobalKey();
+  final Key _formKey = GlobalKey();
   final _codeController = TextEditingController();
   final _titleController = TextEditingController();
-  final _lasttNameController = TextEditingController();
   final _exempController = TextEditingController();
-  List<DocumentModel> documentsList = [
-    DocumentModel(
-      id: '1',
-      title: 'The Art of War',
-      author: 'Sun Tzu',
-      description:
-          'The Art of War is an ancient Chinese military treatise dating from the Late Spring and Autumn Period. The work, which is attributed to the ancient Chinese military strategist Sun Tzu, is composed of 13 chapters. Each one is devoted to an aspect of warfare and how it applies to military strategy and tactics.',
-      url:
-          'https://images-na.ssl-images-amazon.com/images/I/51Q7Q4QF7ML._SX331_BO1,204,203,200_.jpg',
-      type: 'book',
-      createdAt: '2021-10-01 00:00:00',
-      updatedAt: '2021-10-01 00:00:00',
-    ),
-    DocumentModel(
-      id: '2',
-      title: 'The Art of War',
-      author: 'Sun Tzu',
-      description:
-          'The Art of War is an ancient Chinese military treatise dating from the Late Spring and Autumn Period. The work, which is attributed to the ancient Chinese military strategist Sun Tzu, is composed of 13 chapters. Each one is devoted to an aspect of warfare and how it applies to military strategy and tactics.',
-      url:
-          'https://images-na.ssl-images-amazon.com/images/I/51Q7Q4QF7ML._SX331_BO1,204,203,200_.jpg',
-      type: 'book',
-      createdAt: '2021-10-01 00:00:00',
-      updatedAt: '2021-10-01 00:00:00',
-    ),
-    DocumentModel(
-      id: '3',
-      title: 'The Art of War',
-      author: 'Sun Tzu',
-      description:
-          'The Art of War is an ancient Chinese military treatise dating from the Late Spring and Autumn Period. The work, which is attributed to the ancient Chinese military strategist Sun Tzu, is composed of 13 chapters. Each one is devoted to an aspect of warfare and how it applies to military strategy and tactics.',
-      url:
-          'https://images-na.ssl-images-amazon.com/images/I/51Q7Q4QF7ML._SX331_BO1,204,203,200_.jpg',
-      type: 'book',
-      createdAt: '2021-10-01 00:00:00',
-      updatedAt: '2021-10-01 00:00:00',
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
     final db = ref.watch(dbProvider).value;
 
     return Scaffold(
+      backgroundColor: Colors.white.darken(3),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-            child: Column(
-          children: [
-            const Text('Documents',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            SizedBox(height: 4.h),
-            //refresh button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                // export to excel button
-                IconButton(
-                    onPressed: () {
-                      // export to excel
-                    },
-                    icon: const Icon(Icons.download)),
-                IconButton(
-                    onPressed: () {
-                      setState(() {});
-                    },
-                    icon: const Icon(Icons.refresh))
-              ],
-            ),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [Text('Code'), Text('Title'), Text('Exemplaires')],
-            ),
-            const Divider(),
-            const SizedBox(height: 16),
-            db == null
-                ? const CircularProgressIndicator()
-                : FutureBuilder(
-                    future: db.query('select * from document;'),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: const Offset(0, 3), // changes position of shadow
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 32, left: 32.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Documents',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 4.h),
+                    SearchAnchor.bar(
+                      barHintText: 'Search documents',
+                      suggestionsBuilder: (context, controller) {
+                        return [
+                          // no search history
+                          if (controller.text.isEmpty)
+                            const Center(
+                              child: Text('No search history.',
+                                  style: TextStyle(color: Colors.grey)),
+                            )
+                          else
+                            // search history
+                            ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: 10,
+                                itemBuilder: (context, index) {
+                                  return ListTile(
+                                    onTap: () {},
+                                    contentPadding: EdgeInsets.zero,
+                                    title: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Expanded(
+                                            child: Center(
+                                                child:
+                                                    Text('code'.toString()))),
+                                        Expanded(
+                                            child: Center(
+                                                child:
+                                                    Text('title'.toString()))),
+                                        Expanded(
+                                            child: Center(
+                                                child:
+                                                    Text('exemp'.toString()))),
+                                      ],
+                                    ),
+                                  );
+                                })
+                        ];
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              //refresh button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // export to excel button
+                  IconButton(
+                      tooltip: 'Export to excel',
+                      onPressed: () {
+                        // export to excel
+                      },
+                      icon: const Icon(Icons.download)),
+                  IconButton(
+                      tooltip: 'Refresh',
+                      onPressed: () {
+                        setState(() {});
+                      },
+                      icon: const Icon(Icons.refresh))
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: Center(
+                  child: FutureBuilder(
+                    future: db!.query('select * from document;'),
                     builder: (context, snapshot) {
                       final data = snapshot.data;
                       return data == null
                           ? const CircularProgressIndicator()
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: data.length,
-                              itemBuilder: (context, index) {
-                                return ListTile(
-                                  onTap: () {},
-                                  trailing: IconButton(
-                                      onPressed: () {
-                                        db.delete(
-                                            'delete from document where code = ${data[index]['code']}');
-                                        setState(() {});
-                                      },
-                                      icon: const Icon(Icons.delete)),
-                                  contentPadding: EdgeInsets.zero,
-                                  title: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Expanded(
-                                          child: Center(
-                                              child: Text(data[index]['code']
-                                                  .toString()))),
-                                      Expanded(
-                                          child: Center(
-                                              child: Text(data[index]['title']
-                                                  .toString()))),
-                                      Expanded(
-                                          child: Center(
-                                              child: Text(data[index]['exemp']
-                                                  .toString()))),
-                                    ],
-                                  ),
-                                );
-                                // Row(
-                                //   mainAxisAlignment:
-                                //       MainAxisAlignment.spaceEvenly,
-                                //   children: [
-                                //     Expanded(
-                                //         child: Center(
-                                //             child: Text(data[index]['code']
-                                //                 .toString()))),
-                                //     Expanded(
-                                //         child: Center(
-                                //             child: Text(data[index]['title']
-                                //                 .toString()))),
-                                //     Expanded(
-                                //         child: Center(
-                                //             child: Text(data[index]['exemp']
-                                //                 .toString()))),
-                                //   ],
-                                // );
-                              },
+                          : SingleChildScrollView(
+                              child: DataTable(
+                                  columns: const [
+                                    DataColumn(label: Text('Code')),
+                                    DataColumn(label: Text('Title')),
+                                    DataColumn(label: Text('Exemplaires')),
+                                    DataColumn(label: Text('Delete'))
+                                  ],
+                                  rows: data
+                                      .map((e) => DataRow(
+                                        cells: [
+                                            DataCell(
+                                                Text(e['code'].toString())),
+                                            DataCell(
+                                                Text(e['title'].toString())),
+                                            DataCell(
+                                                Text(e['exemp'].toString())),
+                                            DataCell(IconButton(
+                                                tooltip: 'Delete',
+                                                onPressed: () {
+                                                  db.delete(
+                                                      'delete from document where code = ${e['code']}');
+                                                  setState(() {});
+                                                },
+                                                icon: const Icon(Icons.delete)))
+                                          ]))
+                                      .toList()),
                             );
-                    }),
-          ],
-        )),
+                    },
+                  ),
+                ),
+              ),
+
+              const Divider(),
+            ],
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
@@ -169,7 +175,7 @@ class _DocumentsPageState extends ConsumerState<DocumentsPage> {
             showCupertinoModalPopup(
                 context: context,
                 builder: (context) {
-                  return Material(
+                  return Card(
                     child: SizedBox(
                       width: 60.w,
                       child: Padding(

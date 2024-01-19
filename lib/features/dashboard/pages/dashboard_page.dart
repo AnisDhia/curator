@@ -1,3 +1,4 @@
+import 'package:curator/data/apis/mysql_api.dart';
 import 'package:curator/features/dashboard/widgets/chart.dart';
 import 'package:curator/features/dashboard/widgets/chart2.dart';
 import 'package:curator/features/dashboard/widgets/dashboard_card.dart';
@@ -5,18 +6,19 @@ import 'package:curator/features/dashboard/widgets/search_field.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class DashboardPage extends StatefulWidget {
+class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({
     super.key,
   });
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _DashboardPageState extends ConsumerState<DashboardPage> {
   final TextEditingController _searchController = TextEditingController();
   int touchedIndex = -1;
 
@@ -31,6 +33,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final db = ref.watch(dbProvider).value;
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -40,16 +44,43 @@ class _DashboardPageState extends State<DashboardPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(
-                      width: 40.w,
-                      child: SearchField(
-                          controller: _searchController,
-                          hintText: 'Search books, collections or users')),
-                  const SizedBox(width: 16),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.search),
-                  ),
+                  SearchAnchor(builder:
+                      (BuildContext context, SearchController controller) {
+                    return SearchBar(
+                      controller: controller,
+                      padding: const MaterialStatePropertyAll<EdgeInsets>(
+                          EdgeInsets.symmetric(horizontal: 16.0)),
+                      onTap: () {
+                        controller.openView();
+                      },
+                      onChanged: (_) {
+                        controller.openView();
+                      },
+                      leading: const Icon(Icons.search),
+                      //   trailing: <Widget>[
+                      //     if (controller.query.isNotEmpty)
+                      //       IconButton(
+                      //         onPressed: () {
+                      //           controller.clear();
+                      //         },
+                      //         icon: const Icon(Icons.clear),
+                      //       ),
+                      //   ],
+                    );
+                  }, suggestionsBuilder:
+                      (BuildContext context, SearchController controller) {
+                    return List<ListTile>.generate(5, (int index) {
+                      final String item = 'item $index';
+                      return ListTile(
+                        title: Text(item),
+                        onTap: () {
+                          setState(() {
+                            controller.closeView(item);
+                          });
+                        },
+                      );
+                    });
+                  }),
                   const Spacer(),
                   IconButton(
                     onPressed: () {},
@@ -162,18 +193,58 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       children: [
                         DashboardCard(
                           title: 'Recently added',
-                          child: Placeholder(),
+                          child: Center(
+                            child: FutureBuilder(
+                              future: db!.query('select * from document limit 10;'),
+                              builder: (context, snapshot) {
+                                final data = snapshot.data;
+                                return data == null
+                                    ? const CircularProgressIndicator()
+                                    : SingleChildScrollView(
+                                        child: DataTable(
+                                            columns: const [
+                                              DataColumn(label: Text('Code')),
+                                              DataColumn(
+                                                  label: Text('Title')),
+                                              DataColumn(
+                                                  label: Text('Exemplaires')),
+                                              DataColumn(
+                                                  label: Text('Delete'))
+                                            ],
+                                            rows: data
+                                                .map((e) => DataRow(cells: [
+                                                      DataCell(Text(e['code']
+                                                          .toString())),
+                                                      DataCell(Text(e['title']
+                                                          .toString())),
+                                                      DataCell(Text(e['exemp']
+                                                          .toString())),
+                                                      DataCell(IconButton(
+                                                          tooltip: 'Delete',
+                                                          onPressed: () {
+                                                            db.delete(
+                                                                'delete from document where code = ${e['code']}');
+                                                            setState(() {});
+                                                          },
+                                                          icon: const Icon(
+                                                              Icons.delete)))
+                                                    ]))
+                                                .toList()),
+                                      );
+                              },
+                            ),
+                          ),
                         ),
-                        DashboardCard(
+                        const DashboardCard(
                           title: 'Favorite genres',
                           child: Placeholder(),
                         ),
-                        DashboardCard(
+                        const DashboardCard(
                           title: 'Favorite authors',
                           child: Placeholder(),
                         ),

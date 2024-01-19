@@ -1,5 +1,4 @@
 import 'package:curator/data/apis/mysql_api.dart';
-import 'package:curator/data/models/document_model.dart';
 import 'package:curator/features/browse/widgets/subscriber_details_sheet.dart';
 import 'package:curator/features/dashboard/widgets/search_field.dart';
 import 'package:flutter/cupertino.dart';

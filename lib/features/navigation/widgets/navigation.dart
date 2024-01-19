@@ -4,7 +4,6 @@ import 'package:curator/features/dashboard/pages/dashboard_page.dart';
 import 'package:curator/features/navigation/widgets/toolbar.dart';
 import 'package:curator/features/settings/pages/settings_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_acrylic/widgets/transparent_macos_sidebar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttericon/octicons_icons.dart';
 // import 'package:flutter_gen/gen_l10n/app_localization.dart';

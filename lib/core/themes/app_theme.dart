@@ -10,6 +10,7 @@ final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>(
 class AppTheme {
   static ThemeData lightTheme = ThemeData.light(useMaterial3: true).copyWith(
     colorScheme: ColorScheme.fromSeed(seedColor: Pallete.primaryColor),
+    
   );
 
   static ThemeData darkTheme = ThemeData.dark(useMaterial3: true).copyWith(
@@ -22,7 +23,7 @@ class AppTheme {
 }
 
 class ThemeNotifier extends StateNotifier<ThemeMode> {
-  ThemeNotifier() : super(ThemeMode.system);
+  ThemeNotifier() : super(ThemeMode.light);
 
   void changeTheme() {
     state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
