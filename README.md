@@ -55,7 +55,7 @@ flutter run
 Contributions to Curator are welcome! Feel free to submit issues, feature requests, or pull requests. For major changes, please open an issue first to discuss the proposed changes.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE]() file for details.
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
 ## Acknowledgments
 - Thanks to the Flutter and Dart communities for providing excellent resources and documentation.
